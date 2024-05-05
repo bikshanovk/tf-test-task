@@ -3,7 +3,7 @@ provider "aws" {
   access_key = var.access_key
   secret_key = var.secret_key
 }
-
+/*
 
 ##### Creating a Random String #####
 resource "random_string" "random" {
@@ -68,3 +68,4 @@ data "aws_iam_policy_document" "grant_access_to_static_files" {
     ]
   }
 }
+*/
