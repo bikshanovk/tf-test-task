@@ -1,68 +1,46 @@
+provider "aws" { 
+  region = "us-east-2"
+  alias = "parent"
+}
+
 provider "aws" {
   region     = var.region
+  alias      = "prod"
+  assume_role {
+      role_arn = "arn:aws:iam::${var.prod_account_id}:role/OrganizationAccountAccessRole"
+      }
+}
+provider "aws" {
+  region     = var.region
+  alias      = "dev"
+  assume_role {
+      role_arn = "arn:aws:iam::${var.dev_account_id}:role/OrganizationAccountAccessRole"
+      }
 }
 
-
-##### Creating a Random String #####
-resource "random_string" "random" {
-  length = 6
-  special = false
-  upper = false
-} 
-
-##### Creating an S3 Bucket #####
-resource "aws_s3_bucket" "bucket" {
-  bucket = "revbucket-${random_string.random.result}"
-  force_destroy = true
+  data "aws_caller_identity" "parent" {
+    provider = aws.parent
+}
+  data "aws_caller_identity" "dev" {
+    provider = aws.dev
 }
 
-resource "aws_s3_bucket_website_configuration" "blog" {
-  bucket = aws_s3_bucket.bucket.id
-  index_document {
-    suffix = "index.html"
-  }
-  error_document {
-    key = "error.html"
-  }
+  data "aws_caller_identity" "prod" {
+    provider = aws.prod
 }
 
-resource "aws_s3_bucket_public_access_block" "public_access_block" {
-  bucket = aws_s3_bucket.bucket.id
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+module "s3_web_site_dev" {
+source = "./modules/s3-multi-account"
+    providers = {
+      aws = aws.dev
+  } 
+  enviropment = "dev"
 }
 
-##### will upload all the files present under HTML folder to the S3 bucket #####
-resource "aws_s3_object" "upload_object" {
-  for_each      = fileset("html/", "*")
-  bucket        = aws_s3_bucket.bucket.id
-  key           = each.value
-  source        = "html/${each.value}"
-  etag          = filemd5("html/${each.value}")
-  content_type  = "text/html"
-}
-
-resource "aws_s3_bucket_policy" "grant_access_to_static_files" {
-  bucket = aws_s3_bucket.bucket.id
-  policy = data.aws_iam_policy_document.grant_access_to_static_files.json
-}
-
-data "aws_iam_policy_document" "grant_access_to_static_files" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      aws_s3_bucket.bucket.arn,
-      "${aws_s3_bucket.bucket.arn}/*",
-    ]
-  }
+module "s3_web_site_prod" {
+source = "./modules/s3-multi-account"
+    providers = {
+      aws = aws.prod
+  } 
+  enviropment = "prod"
 }
