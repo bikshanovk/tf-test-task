@@ -1,19 +1,19 @@
-Implementation of the task:
+
+### Implementation of the task:
 https://sales.fivexl.io/terraform
 
-Requrements to reproduce:
+### Requirements to reproduce:
 
-Github account.
-HCP Terraform account with created organization.
-Two AWS accounts.
+- Github account.
+- Three AWS accounts configured with AWS organisations hierarchy.
 
 Steps to reproduce:
 
-1 Sign in to your GitHub account
-2 Fork this repo
-3 Sign up HCP Terraform account. You may use your GitHub Account
-4 Create Organization inside HCP Terraform
-5 Create a new Workspace
-6 Choose version control workflow
-7 Use github and connect to this repository
-8 
+1. Sign in to your GitHub account
+2. Fork this repo
+3. Create terraform.tfvars with mandatory variables values.
+4. Push terraform.tfvars to repo
+5. Put mandatory secrets to Github
+6. Change one of the *.html files in repo and push changes
+7. Deploy will trigger
+8. Subsequent change of *.html files will trigger redeploy
