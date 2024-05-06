@@ -2,6 +2,8 @@
 ### Implementation of the task:
 https://sales.fivexl.io/terraform
 
+This impolementation performs deploy with to approaches: S3 static website (Classic :) ) and ECS Fargate (fashion ;) ).
+
 ### Requirements to reproduce:
 
 - Github account.
